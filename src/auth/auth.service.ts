@@ -94,11 +94,6 @@ export class AuthService {
 
     const refreshToken = await this.tokenService.createRefreshToken(user);
 
-    await this.prismaService.users.update({
-      where: { id: user.id },
-      data: { accessToken: accessToken },
-    });
-
     return {
       id: user.id,
       email: user.email,

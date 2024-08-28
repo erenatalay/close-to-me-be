@@ -52,13 +52,6 @@ export class TokenService {
     });
   }
 
-  async updateRefreshToken(user: Users, token: string) {
-    await this.prismaService.users.update({
-      where: { id: user.id },
-      data: { refreshToken: token },
-    });
-  }
-
   async refreshAccessToken(refreshToken: string): Promise<string> {
     let userEmail;
     try {
@@ -74,7 +67,7 @@ export class TokenService {
       where: { email: userEmail },
     });
 
-    if (!user || user.refreshToken !== refreshToken) {
+    if (!user) {
       throw new UnauthorizedException('Invalid token');
     }
 
