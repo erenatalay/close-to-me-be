@@ -1,9 +1,4 @@
-import {
-  HttpStatus,
-  Injectable,
-  InternalServerErrorException,
-  UnprocessableEntityException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AuthRegisterRequestDto } from './dto/register-request-auth.dto';
 import { AuthRegisterResponseDto } from './dto/register.response-auth.dto';
@@ -12,7 +7,11 @@ import { HashingService } from 'src/utils/hashing/hashing.module';
 import { AuthLoginResponseDto } from './dto/login.response-auth.dto';
 import { AuthLoginRequestDto } from './dto/login-request-auth.dto';
 import { TokenService } from 'src/token/token.service';
-import { UserAlreadyExistsException } from 'src/common/error/custom-exception';
+import {
+  InvalidCredentialsException,
+  UserAlreadyExistsException,
+  UserNotFoundException,
+} from 'src/common/error/custom-exception';
 
 @Injectable()
 export class AuthService {
@@ -25,38 +24,31 @@ export class AuthService {
   async registerUserService(
     registerUserDto: AuthRegisterRequestDto,
   ): Promise<AuthRegisterResponseDto> {
-    try {
-      const { firstname, lastname, email, password } = registerUserDto;
-      const existingUser = await this.prismaService.users.findUnique({
-        where: { email },
-      });
-      if (existingUser) throw new UserAlreadyExistsException();
+    const { firstname, lastname, email, password } = registerUserDto;
+    const existingUser = await this.prismaService.users.findUnique({
+      where: { email },
+    });
+    if (existingUser) throw new UserAlreadyExistsException();
 
-      const hashedPassword = await this.hashingService.hashPassword(password);
+    const hashedPassword = await this.hashingService.hashPassword(password);
 
-      const user = await this.prismaService.users.create({
-        data: {
-          firstname: firstname,
-          lastname: lastname,
-          email: email,
-          password: hashedPassword,
-          provider: AuthProviderEnum.DEFAULT,
-        },
-      });
+    const user = await this.prismaService.users.create({
+      data: {
+        firstname: firstname,
+        lastname: lastname,
+        email: email,
+        password: hashedPassword,
+        provider: AuthProviderEnum.DEFAULT,
+      },
+    });
 
-      return {
-        id: user.id,
-        email: user.email,
-        firstName: user.firstname,
-        lastName: user.lastname,
-        provider: user.provider,
-      };
-    } catch (error) {
-      console.log(error);
-      throw new InternalServerErrorException(
-        'An error occurred, please try again later',
-      );
-    }
+    return {
+      id: user.id,
+      email: user.email,
+      firstName: user.firstname,
+      lastName: user.lastname,
+      provider: user.provider,
+    };
   }
 
   async loginUserService(
@@ -68,27 +60,14 @@ export class AuthService {
       where: { email },
     });
 
-    if (!user) {
-      throw new UnprocessableEntityException({
-        status: HttpStatus.UNPROCESSABLE_ENTITY,
-        errors: {
-          email: 'notFound',
-        },
-      });
-    }
+    if (!user) throw new UserNotFoundException();
 
     const isPasswordValid = await this.hashingService.comparePassword(
       password,
       user.password,
     );
 
-    if (!isPasswordValid)
-      throw new UnprocessableEntityException({
-        status: HttpStatus.UNPROCESSABLE_ENTITY,
-        errors: {
-          password: 'invalid',
-        },
-      });
+    if (!isPasswordValid) throw new InvalidCredentialsException();
 
     const accessToken = await this.tokenService.createAccessToken(user);
 
