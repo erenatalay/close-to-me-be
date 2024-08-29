@@ -1,0 +1,49 @@
+import { HttpException, HttpStatus } from '@nestjs/common';
+
+export class UserNotFoundException extends HttpException {
+  constructor() {
+    super("User doesn't exist", HttpStatus.NOT_FOUND);
+  }
+}
+
+export class InvalidCredentialsException extends HttpException {
+  constructor() {
+    super('Invalid credentials', HttpStatus.UNAUTHORIZED);
+  }
+}
+
+export class UserAlreadyExistsException extends HttpException {
+  constructor() {
+    super('User already exists', HttpStatus.CONFLICT);
+  }
+}
+
+export class EmailNotFoundException extends HttpException {
+  constructor() {
+    super('Email not found', HttpStatus.NOT_FOUND);
+  }
+}
+
+export class UnauthorizedAccessException extends HttpException {
+  constructor() {
+    super('Unauthorized this resource', HttpStatus.UNAUTHORIZED);
+  }
+}
+
+export class InvalidUUIDException extends HttpException {
+  constructor() {
+    super('Invalid UUID', HttpStatus.BAD_REQUEST);
+  }
+}
+
+export class UUIDCannotBeNotEmptyException extends HttpException {
+  constructor() {
+    super('UUID cannot be not empty found', HttpStatus.NOT_FOUND);
+  }
+}
+
+export class AccountIsAlreadyDeactivatedException extends HttpException {
+  constructor() {
+    super('Account is already deactivated', HttpStatus.CONFLICT);
+  }
+}

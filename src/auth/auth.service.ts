@@ -1,8 +1,8 @@
 import {
   HttpStatus,
   Injectable,
+  InternalServerErrorException,
   UnprocessableEntityException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AuthRegisterRequestDto } from './dto/register-request-auth.dto';
@@ -12,6 +12,7 @@ import { HashingService } from 'src/utils/hashing/hashing.module';
 import { AuthLoginResponseDto } from './dto/login.response-auth.dto';
 import { AuthLoginRequestDto } from './dto/login-request-auth.dto';
 import { TokenService } from 'src/token/token.service';
+import { UserAlreadyExistsException } from 'src/common/error/custom-exception';
 
 @Injectable()
 export class AuthService {
@@ -24,39 +25,38 @@ export class AuthService {
   async registerUserService(
     registerUserDto: AuthRegisterRequestDto,
   ): Promise<AuthRegisterResponseDto> {
-    const { firstname, lastname, email, password } = registerUserDto;
+    try {
+      const { firstname, lastname, email, password } = registerUserDto;
+      const existingUser = await this.prismaService.users.findUnique({
+        where: { email },
+      });
+      if (existingUser) throw new UserAlreadyExistsException();
 
-    const existingUser = await this.prismaService.users.findUnique({
-      where: { email },
-    });
+      const hashedPassword = await this.hashingService.hashPassword(password);
 
-    if (existingUser)
-      throw new UnauthorizedException({
-        status: HttpStatus.CONFLICT,
-        errors: {
-          email: 'alreadyExists',
+      const user = await this.prismaService.users.create({
+        data: {
+          firstname: firstname,
+          lastname: lastname,
+          email: email,
+          password: hashedPassword,
+          provider: AuthProviderEnum.DEFAULT,
         },
       });
 
-    const hashedPassword = await this.hashingService.hashPassword(password);
-
-    const user = await this.prismaService.users.create({
-      data: {
-        firstname: firstname,
-        lastname: lastname,
-        email: email,
-        password: hashedPassword,
-        provider: AuthProviderEnum.DEFAULT,
-      },
-    });
-
-    return {
-      id: user.id,
-      email: user.email,
-      firstName: user.firstname,
-      lastName: user.lastname,
-      provider: user.provider,
-    };
+      return {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstname,
+        lastName: user.lastname,
+        provider: user.provider,
+      };
+    } catch (error) {
+      console.log(error);
+      throw new InternalServerErrorException(
+        'An error occurred, please try again later',
+      );
+    }
   }
 
   async loginUserService(
