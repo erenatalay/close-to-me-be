@@ -35,9 +35,6 @@ async function bootstrap() {
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalPipes(new ValidationPipe(validationOptions));
 
-  //refactor this sanitizer
-  // app.useGlobalInterceptors(new SanitizeInterceptor());
-
   const swaggerService = app.get(SwaggerService);
   swaggerService.setupSwagger(app);
   const PORT = configService.get<string>('API_PORT', { infer: true });

@@ -5,10 +5,15 @@ import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { SwaggerModule } from './swagger/swagger.module';
-import { HeaderResolver, I18nModule } from 'nestjs-i18n';
-import { join } from 'path';
+import {
+  AcceptLanguageResolver,
+  HeaderResolver,
+  I18nJsonLoader,
+  I18nModule,
+} from 'nestjs-i18n';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { GracefulShutdownModule } from 'nestjs-graceful-shutdown';
+import { join } from 'path';
 @Module({
   imports: [
     GracefulShutdownModule.forRoot(),
@@ -19,9 +24,12 @@ import { GracefulShutdownModule } from 'nestjs-graceful-shutdown';
           path: join(__dirname, '/i18n/'),
           watch: true,
         },
-        typesOutputPath: join(__dirname, '../src/generated/i18n.generated.ts'),
       }),
-      resolvers: [new HeaderResolver(['x-custom-lang'])],
+      loader: I18nJsonLoader,
+      resolvers: [
+        new AcceptLanguageResolver(),
+        new HeaderResolver(['Accept-Language']),
+      ],
     }),
     ThrottlerModule.forRoot([
       {
