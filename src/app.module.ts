@@ -12,6 +12,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
 
 import { AppController } from './app.contoller';
 import { AuthModule } from './auth/auth.module';
+import { HealthModule } from './auth/health-check/healthCheck.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { SwaggerModule } from './swagger/swagger.module';
 import { UsersModule } from './users/users.module';
@@ -43,6 +44,7 @@ import { UsersModule } from './users/users.module';
     UsersModule,
     PrismaModule,
     SwaggerModule,
+    HealthModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
