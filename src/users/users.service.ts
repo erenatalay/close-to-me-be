@@ -1,11 +1,12 @@
-import {
-  BadRequestException,
-  HttpStatus,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { I18nService } from 'src/i18n/i18n.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UuidService } from 'src/utils/uuid/uuid.service';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
+
 import { GetUserResponseDto } from './dto/user-response.dto';
 
 @Injectable()
@@ -13,15 +14,13 @@ export class UsersService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly uuidService: UuidService,
+    private readonly i18nService: I18nService,
   ) {}
 
   async getUserByUuid(uuid: string): Promise<GetUserResponseDto> {
     if (!(await this.uuidService.validateUuid(uuid))) {
       throw new BadRequestException({
-        status: HttpStatus.BAD_REQUEST,
-        errors: {
-          uuid: 'invalid',
-        },
+        message: this.i18nService.translate('error.userNotFound.user'),
       });
     }
 
@@ -38,11 +37,8 @@ export class UsersService {
     });
 
     if (!user) {
-      throw new NotFoundException({
-        status: HttpStatus.NOT_FOUND,
-        errors: {
-          user: 'notFound',
-        },
+      throw new UnauthorizedException({
+        message: this.i18nService.translate('error.userNotFound.user'),
       });
     }
 

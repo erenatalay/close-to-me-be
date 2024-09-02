@@ -1,3 +1,6 @@
+import { JwtAuthGuard } from 'src/auth/strategy/auth-guard.strategy';
+import { CustomRequest } from 'src/common/request/customRequest';
+import { I18nService } from 'src/i18n/i18n.service';
 import {
   Controller,
   Get,
@@ -8,14 +11,16 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+
 import { UsersService } from './users.service';
-import { JwtAuthGuard } from 'src/auth/strategy/auth-guard.strategy';
-import { CustomRequest } from 'src/common/request/customRequest';
 
 @Controller({ path: 'user', version: '1' })
 @ApiTags('Users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly i18Service: I18nService,
+  ) {}
   @Get('me')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Get current user profile' })
@@ -27,10 +32,7 @@ export class UsersController {
 
     if (!userUuid) {
       throw new NotFoundException({
-        status: HttpStatus.NOT_FOUND,
-        errors: {
-          user: 'notFound',
-        },
+        message: this.i18Service.translate('error.userNotFound.user'),
       });
     }
 
@@ -38,13 +40,13 @@ export class UsersController {
 
     if (!result) {
       throw new NotFoundException({
-        status: HttpStatus.NOT_FOUND,
-        errors: {
-          user: 'notFound',
-        },
+        message: this.i18Service.translate('error.userNotFound.user'),
       });
     }
 
-    return { message: 'User Information retrieved successfully', data: result };
+    return {
+      message: this.i18Service.translate('common.user.info.success'),
+      data: result,
+    };
   }
 }

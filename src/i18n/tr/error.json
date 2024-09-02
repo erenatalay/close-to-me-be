@@ -1,4 +1,5 @@
 {
+  "userNotFound.user": "Kullanıcı bulunamadı.",
   "userNotFound.email": "Böyle bir email adresi ile kayıtlı kullanıcı bulunamadı.",
   "userNotFound.invalid.password": "Geçersiz şifre.",
   "user.aldready.exist": "Kullanıcı zaten mevcut."
