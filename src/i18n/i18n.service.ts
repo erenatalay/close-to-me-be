@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
 import { I18nContext } from 'nestjs-i18n';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class I18nService {

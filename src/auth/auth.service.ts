@@ -1,17 +1,18 @@
-import { Injectable } from '@nestjs/common';
+import { I18nService } from 'src/i18n/i18n.service';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { TokenService } from 'src/token/token.service';
+import { HashingService } from 'src/utils/hashing/hashing.module';
+import {
+  Injectable,
+  UnauthorizedException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
+
+import { AuthProviderEnum } from './auth.types';
+import { AuthLoginRequestDto } from './dto/login-request-auth.dto';
+import { AuthLoginResponseDto } from './dto/login.response-auth.dto';
 import { AuthRegisterRequestDto } from './dto/register-request-auth.dto';
 import { AuthRegisterResponseDto } from './dto/register.response-auth.dto';
-import { AuthProviderEnum } from './auth.types';
-import { HashingService } from 'src/utils/hashing/hashing.module';
-import { AuthLoginResponseDto } from './dto/login.response-auth.dto';
-import { AuthLoginRequestDto } from './dto/login-request-auth.dto';
-import { TokenService } from 'src/token/token.service';
-import {
-  InvalidCredentialsException,
-  UserAlreadyExistsException,
-  UserNotFoundException,
-} from 'src/common/error/custom-exception';
 
 @Injectable()
 export class AuthService {
@@ -19,6 +20,7 @@ export class AuthService {
     private readonly prismaService: PrismaService,
     private readonly hashingService: HashingService,
     private readonly tokenService: TokenService,
+    private readonly i18nService: I18nService,
   ) {}
 
   async registerUserService(
@@ -28,7 +30,10 @@ export class AuthService {
     const existingUser = await this.prismaService.users.findUnique({
       where: { email },
     });
-    if (existingUser) throw new UserAlreadyExistsException();
+    if (existingUser)
+      throw new UnprocessableEntityException({
+        message: this.i18nService.translate('error.user.aldready.exist'),
+      });
 
     const hashedPassword = await this.hashingService.hashPassword(password);
 
@@ -60,14 +65,22 @@ export class AuthService {
       where: { email },
     });
 
-    if (!user) throw new UserNotFoundException();
-
+    if (!user) {
+      throw new UnauthorizedException({
+        message: this.i18nService.translate('error.userNotFound.email'),
+      });
+    }
     const isPasswordValid = await this.hashingService.comparePassword(
       password,
       user.password,
     );
 
-    if (!isPasswordValid) throw new InvalidCredentialsException();
+    if (!isPasswordValid)
+      throw new UnauthorizedException({
+        message: this.i18nService.translate(
+          'error.userNotFound.invalid.password',
+        ),
+      });
 
     const accessToken = await this.tokenService.createAccessToken(user);
 

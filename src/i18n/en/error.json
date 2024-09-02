@@ -1,0 +1,6 @@
+{
+    "userNotFound.email": "No user found with this email address.",
+    "userNotFound.invalid.password": "Invalid password.",
+    "user.aldready.exist": "User already exist."
+  }
+  

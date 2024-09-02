@@ -1,19 +1,21 @@
-import { Module } from '@nestjs/common';
-import { PrismaModule } from './prisma/prisma.module';
-import { AppController } from './app.contoller';
-import { ConfigModule } from '@nestjs/config';
-import { AuthModule } from './auth/auth.module';
-import { UsersModule } from './users/users.module';
-import { SwaggerModule } from './swagger/swagger.module';
+import { GracefulShutdownModule } from 'nestjs-graceful-shutdown';
 import {
   AcceptLanguageResolver,
   HeaderResolver,
   I18nJsonLoader,
   I18nModule,
 } from 'nestjs-i18n';
-import { ThrottlerModule } from '@nestjs/throttler';
-import { GracefulShutdownModule } from 'nestjs-graceful-shutdown';
 import { join } from 'path';
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { ThrottlerModule } from '@nestjs/throttler';
+
+import { AppController } from './app.contoller';
+import { AuthModule } from './auth/auth.module';
+import { PrismaModule } from './prisma/prisma.module';
+import { SwaggerModule } from './swagger/swagger.module';
+import { UsersModule } from './users/users.module';
+
 @Module({
   imports: [
     GracefulShutdownModule.forRoot(),

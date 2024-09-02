@@ -1,3 +1,4 @@
+import { Request, Response } from 'express';
 import {
   ExceptionFilter,
   Catch,
@@ -6,8 +7,6 @@ import {
   HttpStatus,
   Logger,
 } from '@nestjs/common';
-import { Request, Response } from 'express';
-import { I18nContext } from 'nestjs-i18n';
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
@@ -31,7 +30,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
         (exception as Error).stack,
       );
     }
-    const i18n = I18nContext.current();
     const isDevelopment = process.env.NODE_ENV === 'development';
     const errorResponse = {
       statusCode: status,
@@ -41,8 +39,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       message,
       ...(isDevelopment && { stack: (exception as Error).stack }),
       ...(isDevelopment && {
-        error:
-          exception instanceof HttpException ? i18n.t(exception.name) : 'Error',
+        error: exception instanceof HttpException ? exception?.name : 'Error',
       }),
     };
 

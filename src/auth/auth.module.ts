@@ -1,13 +1,16 @@
-import { Module } from '@nestjs/common';
-import { AuthController } from './auth.controller';
-import { AuthService } from './auth.service';
-import { HashingModule } from 'src/utils/hashing/hashing.service';
+import { I18nHelperModule } from 'src/i18n/i18.module';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { TokenModule } from 'src/token/token.module';
+import { HashingModule } from 'src/utils/hashing/hashing.service';
+import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
+
+import { AuthController } from './auth.controller';
+import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategy/jwt.strategy';
+
 @Module({
   imports: [
     PassportModule,
@@ -18,6 +21,7 @@ import { JwtStrategy } from './strategy/jwt.strategy';
     HashingModule,
     PrismaModule,
     TokenModule,
+    I18nHelperModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, PrismaService, JwtStrategy],
