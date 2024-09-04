@@ -15,6 +15,7 @@ import { AuthModule } from './auth/auth.module';
 import { HealthModule } from './auth/health-check/healthCheck.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { SwaggerModule } from './swagger/swagger.module';
+import { TrpcModule } from './trpc/trpc.module';
 import { UsersModule } from './users/users.module';
 
 @Module({
@@ -45,6 +46,7 @@ import { UsersModule } from './users/users.module';
     PrismaModule,
     SwaggerModule,
     HealthModule,
+    TrpcModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
