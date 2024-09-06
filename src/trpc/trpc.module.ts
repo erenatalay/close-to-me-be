@@ -1,10 +1,11 @@
+import { I18nHelperModule } from 'src/i18n/i18.module';
 import { Module } from '@nestjs/common';
+import { ModulesContainer, Reflector } from '@nestjs/core';
 
-import { TrpcRouter } from './trpc.router';
 import { TrpcService } from './trpc.service';
 
 @Module({
-  imports: [],
-  providers: [TrpcService, TrpcRouter],
+  providers: [TrpcService, Reflector, ModulesContainer, I18nHelperModule],
+  exports: [TrpcService],
 })
 export class TrpcModule {}

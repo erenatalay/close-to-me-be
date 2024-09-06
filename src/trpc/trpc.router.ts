@@ -1,27 +1,34 @@
+import { AuthController } from 'src/auth/auth.controller';
+import { InferContextType } from 'trpc-nestjs-adapter';
 import { z } from 'zod';
-import { INestApplication, Injectable } from '@nestjs/common';
-import * as trpcExpress from '@trpc/server/adapters/express';
+import { initTRPC } from '@trpc/server';
 
-import { TrpcService } from './trpc.service';
+type CtxType = InferContextType<typeof createContext>;
+const createContext = () => ({});
+const trpc = initTRPC.context<CtxType>().create({});
 
-@Injectable()
-export class TrpcRouter {
-  constructor(private readonly trpc: TrpcService) {}
+const { router } = trpc;
+const procedure = trpc.procedure;
 
-  appRouter = this.trpc.router({
-    hello: this.trpc.procedure
-      .input(z.object({ name: z.string().optional() }))
-      .query(({ input }) => {
-        return `Hello ${input.name ? input.name : `Bilbo`}`;
+export const appRouter = router({
+  login: procedure
+    .input(z.object({ email: z.string(), password: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const service = await ctx.resolveNestDependency(AuthController);
+      return service.login(input as never);
+    }),
+  register: procedure
+    .input(
+      z.object({
+        firstname: z.string(),
+        lastname: z.string(),
+        email: z.string(),
+        password: z.string(),
+        provider: z.string(),
       }),
-  });
-
-  async applyMiddleware(app: INestApplication) {
-    app.use(
-      `/trpc`,
-      trpcExpress.createExpressMiddleware({ router: this.appRouter }),
-    );
-  }
-}
-
-export type AppRouter = TrpcRouter['appRouter'];
+    )
+    .mutation(async ({ ctx, input }) => {
+      const service = await ctx.resolveNestDependency(AuthController);
+      return service.register(input as never);
+    }),
+});

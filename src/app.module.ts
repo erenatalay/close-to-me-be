@@ -6,16 +6,17 @@ import {
   I18nModule,
 } from 'nestjs-i18n';
 import { join } from 'path';
+import { TrpcModule } from 'trpc-nestjs-adapter';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 
 import { AppController } from './app.contoller';
 import { AuthModule } from './auth/auth.module';
-import { HealthModule } from './auth/health-check/healthCheck.module';
+// import { HealthModule } from './auth/health-check/healthCheck.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { SwaggerModule } from './swagger/swagger.module';
-import { TrpcModule } from './trpc/trpc.module';
+import { appRouter } from './trpc/trpc.router';
 import { UsersModule } from './users/users.module';
 
 @Module({
@@ -45,10 +46,14 @@ import { UsersModule } from './users/users.module';
     UsersModule,
     PrismaModule,
     SwaggerModule,
-    HealthModule,
-    TrpcModule,
+    // HealthModule,
     ConfigModule.forRoot({
       isGlobal: true,
+    }),
+    TrpcModule.forRoot({
+      path: '/trpc',
+      router: appRouter,
+      createContext: () => ({}),
     }),
   ],
   controllers: [AppController],

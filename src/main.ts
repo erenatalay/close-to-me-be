@@ -1,13 +1,13 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import { Logger, ValidationPipe } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { setupGracefulShutdown } from 'nestjs-graceful-shutdown';
-
-import helmet from 'helmet';
-import * as hpp from 'hpp';
 import * as compression from 'compression';
 import * as cookieParser from 'cookie-parser';
+import helmet from 'helmet';
+import * as hpp from 'hpp';
+import { setupGracefulShutdown } from 'nestjs-graceful-shutdown';
+import { Logger, ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { NestFactory } from '@nestjs/core';
+
+import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/error/http-exception-filter';
 import validationOptions from './common/validate/validate-options';
 import { SwaggerService } from './swagger/swagger.service';
